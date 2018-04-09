@@ -4,37 +4,74 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include <Particles/ParticleSystem.h>
 #include "SWeapon.generated.h"
 
 class USkeletalMeshComponent;
 class UDamageType;
+class UParticleSystem;
 
 UCLASS()
 class COOPGAME_API ASWeapon : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ASWeapon();
 
 protected:
-	// Called when the game starts or when spawned
+
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
-	USkeletalMeshComponent* MeshComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		USkeletalMeshComponent* MeshComp;
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void Fire();
+	void PlayFireEffects(FVector TraceEnd);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	TSubclassOf<UDamageType> DamageType;
+		TSubclassOf<UDamageType> DamageType;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+		FName MuzzleSocketName;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+		FName TracerTargetName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+		UParticleSystem* MuzzleEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+		UParticleSystem* DefaultImpactEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+		UParticleSystem* FleshImpactEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+		UParticleSystem* TracerEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<UCameraShake> FireCamShake;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+		float BaseDamage;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+		void Fire();
+
+	FTimerHandle TimerHandle_TimeBetweenShots;
+
+	float LastFireTime;
+
+	//Derived from Rate of Fire
+	float TimeBetweenShots;
+
+	/*RPM - Bullets per minute fired by weapon*/
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float RateOfFire;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	void StartFire();
 
-	
-	
+	void StopFire();
 };
